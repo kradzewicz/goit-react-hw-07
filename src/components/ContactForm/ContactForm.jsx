@@ -2,10 +2,10 @@
 
 import { Field, Form, Formik, ErrorMessage } from "formik";
 import { useDispatch, useSelector } from "react-redux";
-import { addContact } from "../../redux/contactsSlice";
+import { addContact } from "../../redux/operations";
 import { nanoid } from "@reduxjs/toolkit";
 import * as Yup from "yup";
-import { getContacts } from "../../redux/selectors";
+import { selectContacts } from "../../redux/selectors";
 
 const initialValues = {
   name: "",
@@ -25,10 +25,7 @@ const validationSchema = Yup.object().shape({
 
 export function ContactFrom() {
   const dispatch = useDispatch();
-  const contactsObject = useSelector(getContacts);
-  const contactsArray = Object.values(contactsObject).filter(
-    (contact) => contact.id
-  );
+  const contactsList = useSelector(selectContacts);
 
   const nameId = nanoid();
   const numberId = nanoid();
@@ -37,7 +34,7 @@ export function ContactFrom() {
     const name = values.name;
     const number = values.number;
 
-    const duplicatedContact = contactsArray.some(
+    const duplicatedContact = contactsList.some(
       (contact) => contact.name.toLowerCase() === name.toLowerCase()
     );
 
@@ -46,7 +43,13 @@ export function ContactFrom() {
       return;
     }
 
-    dispatch(addContact(name, number));
+    dispatch(
+      addContact({
+        id: nanoid(),
+        name: name,
+        number: number,
+      })
+    );
     actions.resetForm();
   };
 
